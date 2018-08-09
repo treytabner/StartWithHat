@@ -21,17 +21,23 @@ namespace StartWithHat
         /// <param name="helper"></param>
         public override void Entry(IModHelper helper)
         {
-            this.Monitor.Log("Loading Start With Hat", LogLevel.Info);
             this.modHelper = helper;
-            SaveEvents.BeforeCreate += this.SaveEvents_BeforeCreate;
+            SaveEvents.AfterLoad += this.SaveEvents_AfterLoad;
             this.options = this.modHelper.ReadConfig<ModOptions>();
         }
 
-        private void SaveEvents_BeforeCreate(object sender, EventArgs e)
+        private void SaveEvents_AfterLoad(object sender, EventArgs e)
         {
             this.ValidateOptions();
-
-            Game1.player.changeHat(this.options.Hat);
+            if (Game1.player.hat.Value == null)
+            {
+                this.Monitor.Log($"Player {Game1.player.Name} has no hat, changing...", LogLevel.Debug);
+                Game1.player.changeHat(this.options.Hat);
+            }
+            else
+            {
+                this.Monitor.Log($"Player {Game1.player.Name} has a hat, skipping...", LogLevel.Debug);
+            }
         }
         
         private void ValidateOptions()
